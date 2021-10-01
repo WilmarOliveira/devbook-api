@@ -9,5 +9,5 @@ import (
 func Generate() *mux.Router {
 	r := mux.NewRouter()
 
-	return routes.Config(r)
+	return routes.ConfigureRoute(r)
 }

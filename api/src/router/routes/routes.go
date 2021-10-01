@@ -13,7 +13,7 @@ type Route struct {
 	NeedAuthentication bool
 }
 
-func Config(r *mux.Router) *mux.Router {
+func ConfigureRoute(r *mux.Router) *mux.Router {
 	routes := userRoutes
 
 	for _, route := range routes {
