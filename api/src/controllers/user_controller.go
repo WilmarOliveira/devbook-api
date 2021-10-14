@@ -4,10 +4,9 @@ import (
 	"api/src/connection"
 	"api/src/entities"
 	"api/src/repositories"
+	"api/src/responses"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -20,32 +19,38 @@ func FindUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsertUser(w http.ResponseWriter, r *http.Request) {
-	requestBody, err := ioutil.ReadAll(r.Body)
 
+	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		responses.ResponseErr(w, http.StatusUnprocessableEntity, err)
+		return
 	}
 
 	var user entities.User
-
 	if err = json.Unmarshal(requestBody, &user); err != nil {
-		log.Fatal(err)
+		responses.ResponseErr(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := user.Prepare(); err != nil {
+		responses.ResponseErr(w, http.StatusBadRequest, err)
+		return
 	}
 
 	db, err := connection.Connect()
-
 	if err != nil {
-		log.Fatal(err)
+		responses.ResponseErr(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	repository := repositories.NewUserRepository(db)
-	userID, err := repository.Create(user)
+	user.ID, err = repository.Create(user)
 	if err != nil {
-		log.Fatal(err)
+		responses.ResponseErr(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Inserted ID: %d", userID)))
-
+	responses.ResponseJSON(w, http.StatusCreated, user)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {

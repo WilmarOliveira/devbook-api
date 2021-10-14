@@ -29,10 +29,10 @@ func (u Users) Create(user entities.User) (uint64, error) {
 		return 0, err
 	}
 
-	lastInsertId, err := result.LastInsertId()
+	lastInsertID, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
 
-	return uint64(lastInsertId), err
+	return uint64(lastInsertID), err
 }
